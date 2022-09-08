@@ -1,79 +1,42 @@
-import openpyxl
 import pandas as pd
 import sys
+import requests
 
-ACCESS_KEY = '7502c7e664797c45bd13bcbef4f9f12c'
 FILE = sys.argv[1]
 SheetName = sys.argv[2]
+API_KEY = 'AIzaSyB07eD8KQyzpMuU-_cGF48ax59gWWahTL8'
 
+def getGeoCoord(address):
+    params = {
+        'key': API_KEY,
+        'address': address.replace(' ', '+')
+    }
 
-def getLongLat(location):
-    import http.client, urllib.parse
+    base_url = 'https://maps.googleapis.com/maps/api/geocode/json?'
+    response = requests.get(base_url, params=params)
+    data = response.json()
+    if data['status'] == 'OK':
+        result = data['results'][0]
+        location = result['geometry']['location']
+        print("Latitude: " + str(location['lat']) + " Longitude: " + str(location['lng']))
+        return location['lat'], location['lng']
+    else:
+        return
 
-    conn = http.client.HTTPConnection('api.positionstack.com')
-
-    params = urllib.parse.urlencode({
-        'access_key': ACCESS_KEY,
-        'query': location,
-        'region': 'South Africa',
-        'limit': 1,
-        'fields': 'results.latitude',
-    })
-
-
-
-    conn.request('GET', '/v1/forward?{}'.format(params))
-
-    res = conn.getresponse()
-    data = res.read()
-
-
-    print(data.decode('utf-8'))
-
-
-def getLocationName():
-    import http.client, urllib.parse
-
-    conn = http.client.HTTPConnection('api.positionstack.com')
-
-    params = urllib.parse.urlencode({
-        'access_key': ACCESS_KEY,
-        'query': '51.507822,-0.076702',
-    })
-
-    conn.request('GET', '/v1/reverse?{}'.format(params))
-
-    res = conn.getresponse()
-    data = res.read()
-
-    print(data.decode('utf-8'))
-
-
-# getLongLat()
-# getLocationName()
 def printExcel(file):
     df = pd.read_excel(file, sheet_name=SheetName)
-    # pd.head()
     print(df)
 
-
-# printExcel(FILE)
+#printExcel(FILE)
 
 
 def parseLocationNames(file):
-    xlsx = pd.ExcelFile(file)
-    frame1 = xlsx.parse(sheet_name=SheetName, usecols={1})
+    xlsx = pd.read_excel(file)
 
-    #frame10 += frame1.apply(getLongLat())
-    for ind in frame1.index:
-        getLongLat(frame1['PlaceLabel'][ind])
-        #return frame1['PlaceLabel'][ind].latitude
+    for ind in xlsx.index:
+        print(xlsx['PlaceLabel'][ind])
+        getGeoCoord(xlsx['PlaceLabel'][ind])
 
-        #for ind in frame10
-        #frame10 = xlsx.parse(sheet_name=SheetName, usecols={10})
-
-    #print(frame1)
-    #print(frame10)
 
 
 parseLocationNames(FILE)
