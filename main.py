@@ -31,12 +31,6 @@ def getLongLat(address):
     else:
         return
 
-def printExcel(file):
-    df = pd.read_excel(file, sheet_name=SheetName)
-    print(df)
-
-#printExcel(FILE)
-
 
 # Verifies found Coordinates
 def verifyCoord(file):
