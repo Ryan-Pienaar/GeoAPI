@@ -1,10 +1,11 @@
 import pandas as pd
 import sys
 import requests
+import numpy as np
 
 FILE = sys.argv[1]  # *.xlsx file path to be GeoCoded
 SheetName = sys.argv[2]  # Sheet of *.xlsx File to be used
-API_KEY = 'AIzaSyB07eD8KQyzpMuU-_cGF48ax59gWWahTL8'  # Ryan Pienaar Google API Key !DO NOT USE!
+API_KEY = 'AIzaSyB07eD8KQyzpMuU-_cGF48ax59gWWahTL8'  # Google API Key (Free Trial Key)
 
 xlsx = pd.read_excel(FILE, sheet_name=SheetName)  # Creates DataFrame from *.xlsx file
 
@@ -34,14 +35,26 @@ def getLongLat(address):
 
 # Verifies found Coordinates
 def verifyCoord(file):
+
     for ind in xlsx.index:
         print(xlsx['PlaceLabel'][ind])
-        lat, long, name = getLongLat(xlsx['PlaceLabel'][ind])
+        long, lat, name = getLongLat(xlsx['PlaceLabel'][ind])
         xlsx.at[ind, 'VerifiedLat'] = lat
         xlsx.at[ind, 'VerifiedLong'] = long
         xlsx.at[ind, 'Google Place Name'] = name
 
+        currLat = xlsx.at[ind, 'Latitude']
+        currLong = xlsx.at[ind, 'Longitude']
+
+        if np.isnan(currLat):
+            xlsx.at[ind, 'Latitude'] = lat
+
+        if np.isnan(currLong):
+            xlsx.at[ind, 'Longitude'] = long
+
+
 # Driving code
 verifyCoord(FILE)
 print(xlsx)
-xlsx.to_excel(FILE, sheet_name=SheetName)  # Writes DataFrame back to Excel file
+xlsx.to_excel(FILE, sheet_name=SheetName, index=False)  # Writes DataFrame back to Excel file
+xlsx.to_json(r'test.json')
