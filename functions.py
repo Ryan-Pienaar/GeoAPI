@@ -5,10 +5,20 @@ import numpy as np
 import json
 
 API_KEY = 'AIzaSyB07eD8KQyzpMuU-_cGF48ax59gWWahTL8'  # Google API Key (Free Trial Key)
+xlsx = pd
 
 def checkLocations(FILE):
     xlsx = pd.read_excel(FILE)
     verifyCoord(xlsx)
+
+def writeToJSON(boolean):
+    if boolean:
+        xlsx.to_json(r'test.json') # Writes DataFrame to JSON file
+
+def writeToXLSX(boolean):
+    if boolean:
+        xlsx.to_excel(xlsx, index=False)  # Writes DataFrame back to Excel file
+
 # Uses Google API To get the longitude and latitude of a place name
 # Returns found longitude and latitude
 def getLongLat(address):
@@ -51,8 +61,3 @@ def verifyCoord(file):
 
         if np.isnan(currLong):
             file.at[ind, 'Longitude'] = long
-
-
-
-#xlsx.to_excel(FILE, sheet_name=SheetName, index=False)  # Writes DataFrame back to Excel file
-#xlsx.to_json(r'test.json')

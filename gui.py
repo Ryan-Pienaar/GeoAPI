@@ -23,8 +23,6 @@ def startGUI():
     layout = [
         [
             sg.Column(file_list_column),
-            #sg.VSeperator(),
-            #sg.Column(image_viewer_column),
         ]
     ]
 
@@ -51,21 +49,14 @@ def startGUI():
                 and f.lower().endswith(".xlsx")
             ]
             window["-FILE LIST-"].update(fnames)
-        elif event == "-FILE LIST-":  # A file was chosen from the listbox
+
+        if event == "Parse Locations":
             try:
                 filename = os.path.join(
                     values["-FOLDER-"], values["-FILE LIST-"][0]
                 )
-                #window["-TOUT-"].update(filename)
-                #window["-IMAGE-"].update(filename=filename)
-
+                checkLocations(filename)
             except:
-                pass
-        if event == "Parse Locations":
-            filename = os.path.join(
-                values["-FOLDER-"], values["-FILE LIST-"][0]
-            )
-            checkLocations(filename)
-            print(values["-FILE LIST-"][0])
+                sg.Popup("Please select a file to be parsed", title="Error")
 
     window.close()
