@@ -56,6 +56,7 @@ def startGUI():
                     values["-FOLDER-"], values["-FILE LIST-"][0]
                 )
                 checkLocations(filename)
+                sg.Popup("Done parsing locations. Select another file to be parsed", title="Finished")
             except:
                 sg.Popup("Please select a file to be parsed", title="Error")
 

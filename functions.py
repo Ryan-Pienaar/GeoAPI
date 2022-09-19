@@ -4,7 +4,11 @@ import numpy as np
 import json
 from shapely.geometry import shape, Point
 
+count = 0
+total = 11481
+
 API_KEY = 'AIzaSyB07eD8KQyzpMuU-_cGF48ax59gWWahTL8'  # Google API Key (Free Trial Key)
+
 
 def checkLocations(FILE):
     xlsx = pd.read_excel(FILE)
@@ -17,6 +21,7 @@ def checkLocations(FILE):
 # Uses Google API To get the longitude and latitude of a place name
 # Returns found longitude and latitude
 def getLongLat(address):
+    global postal, city, province, country, suburb
     params = {
         'key': API_KEY,
         'address': address.replace(' ', '+')
@@ -29,17 +34,33 @@ def getLongLat(address):
     if data['status'] == 'OK':
         result = data['results'][0]
         location = result['geometry']['location']
-        suburb = result['address_components'][0]
-        city = result['address_components'][1]
-        province = result['address_components'][3]
-        country = result['address_components'][4]
-        postal = result['address_components'][5]
+        # print("test")
+        # print(result['address_components'][0]['types'])
+        # print(len(result['address_components']))
+
+        for ind in range(len(result['address_components'])):
+            if 'country' in result['address_components'][ind]['types']:
+                country = result['address_components'][ind]
+
+            if 'postal_code' in result['address_components'][ind]['types']:
+                postal = result['address_components'][ind]
+
+            if 'administrative_area_level_1' in result['address_components'][ind]['types']:
+                province = result['address_components'][ind]
+
+            if 'locality' in result['address_components'][ind]['types']:
+                city = result['address_components'][ind]
+
+            if 'sublocality' in result['address_components'][ind]['types']:
+                suburb = result['address_components'][ind]['long_name']
+            else:
+                suburb = ''
 
         name = result['formatted_address']
-        print("Latitude: " + str(location['lat']) + " Longitude: " + str(location['lng']))
+        # print("Latitude: " + str(location['lat']) + " Longitude: " + str(location['lng']))
 
         return location['lng'], location['lat'], name, postal['long_name'], \
-               suburb['long_name'], city['long_name'], province['long_name'], \
+               suburb, city['long_name'], province['long_name'], \
                country['long_name'],
     else:
         return
@@ -47,17 +68,27 @@ def getLongLat(address):
 
 # Verifies found Coordinates
 def verifyCoord(file):
-
+    global count, placeLabel
     for ind in file.index:
-        print(file['PlaceLabel'][ind])
-        long, lat, name, postal, suburb, city, province, country = getLongLat(file['PlaceLabel'][ind])
+
+        # print(file['PlaceLabel'][ind])
+        if file['Suburb'][ind] == file['City'][ind]:
+            placeLabel = file['Suburb'][ind] + "," + file['Province'][ind] + "," + file['Country'][ind]
+        else:
+            placeLabel = file['Suburb'][ind] + "," + file['City'][ind] + "," + file['Province'][ind] + "," + \
+                         file['Country'][ind]
+        print(placeLabel)
+        long, lat, name, postal, suburb, city, province, country = getLongLat(placeLabel)
         localMun = getLocalMun(lat, long)
         districtMun = getDistrictMun(lat, long)
         file.at[ind, 'Verified Latitude'] = lat
         file.at[ind, 'Verified Longitude'] = long
         file.at[ind, 'Verified Place Name'] = name
         file.at[ind, 'Verified Postal Code'] = postal
-        file.at[ind, 'Verified Suburb'] = suburb
+        if suburb == '':
+            file.at[ind, 'Verified Suburb'] = city
+        else:
+            file.at[ind, 'Verified Suburb'] = suburb
         file.at[ind, 'Verified City'] = city
         file.at[ind, 'Verified Province'] = province
         file.at[ind, 'Verified Country'] = country
@@ -78,6 +109,10 @@ def verifyCoord(file):
         if np.isnan(currLong):
             file.at[ind, 'Longitude'] = long
 
+        count = count + 1
+        progress = (count / total) * 100
+        print(progress)
+
 
 def getLocalMun(lat, long):
     # load GeoJSON file containing sectors
@@ -93,6 +128,7 @@ def getLocalMun(lat, long):
         if polygon.contains(point):
             return feature['properties']['MAP_TITLE']
 
+
 def getDistrictMun(lat, long):
     # load GeoJSON file containing sectors
     with open('GeoJSON/district_mun.geojson') as f:
@@ -106,5 +142,3 @@ def getDistrictMun(lat, long):
         polygon = shape(feature['geometry'])
         if polygon.contains(point):
             return feature['properties']['MAP_TITLE']
-
-
