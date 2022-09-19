@@ -1,0 +1,30 @@
+{
+  "data": [
+    {
+    "results":
+      {
+        "SuburbID": "",
+        "PlaceLabel": "",
+        "Suburb": "",
+        "City": "",
+        "Province": "",
+        "Country": "",
+        "CountryID": "",
+        "Latitude": "",
+        "Longitude": "",
+        "PostalCode": ""
+      },
+
+    "verifiedResults":
+      {
+        "GooglePlaceName": "",
+        "Municipality": "",
+        "PostalCode": "",
+        "Suburb": "",
+        "City": "",
+        "Province": "",
+        "Country": ""
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+    'results': [
+        {'address_components': [
+            {'long_name': 'Abbotsford', 'short_name': 'Abbotsford', 'types': ['political', 'sublocality', 'sublocality_level_1']},
+            {'long_name': 'East London', 'short_name': 'East London', 'types': ['locality', 'political']},
+            {'long_name': 'Amatole', 'short_name': 'Amatole', 'types': ['administrative_area_level_2', 'political']},
+            {'long_name': 'Eastern Cape', 'short_name': 'EC', 'types': ['administrative_area_level_1', 'political']},
+            {'long_name': 'South Africa', 'short_name': 'ZA', 'types': ['country', 'political']},
+            {'long_name': '5241', 'short_name': '5241', 'types': ['postal_code']}],
+        'formatted_address': 'Abbotsford, East London, 5241, South Africa',
+        'geometry': {
+            'bounds': {
+                'northeast': {'lat': -32.956715, 'lng': 27.9225199},
+                'southwest': {'lat': -32.965302, 'lng': 27.9090518}},
+                'location': {'lat': -32.9609823, 'lng': 27.9139155},
+                'location_type': 'APPROXIMATE',
+                'viewport': {
+                    'northeast': {'lat': -32.956715, 'lng': 27.9225199},
+                    'southwest': {'lat': -32.965302, 'lng': 27.9090518}
+                }
+            },
+        'place_id': 'ChIJE9_PKBvgZh4RYpaI6Cf-DZo',
+        'types': ['political', 'sublocality', 'sublocality_level_1']}],
+    'status': 'OK'
+}
