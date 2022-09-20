@@ -37,31 +37,32 @@ def getLongLat(address):
         # print("test")
         # print(result['address_components'][0]['types'])
         # print(len(result['address_components']))
+        postal = None
+        suburb = None
+        city = None
+        province = None
+        country = None
 
         for ind in range(len(result['address_components'])):
             if 'country' in result['address_components'][ind]['types']:
-                country = result['address_components'][ind]
+                country = result['address_components'][ind]['long_name']
 
             if 'postal_code' in result['address_components'][ind]['types']:
-                postal = result['address_components'][ind]
+                postal = result['address_components'][ind]['long_name']
 
             if 'administrative_area_level_1' in result['address_components'][ind]['types']:
-                province = result['address_components'][ind]
+                province = result['address_components'][ind]['long_name']
 
             if 'locality' in result['address_components'][ind]['types']:
-                city = result['address_components'][ind]
+                city = result['address_components'][ind]['long_name']
 
             if 'sublocality' in result['address_components'][ind]['types']:
                 suburb = result['address_components'][ind]['long_name']
-            else:
-                suburb = ''
 
         name = result['formatted_address']
         # print("Latitude: " + str(location['lat']) + " Longitude: " + str(location['lng']))
 
-        return location['lng'], location['lat'], name, postal['long_name'], \
-               suburb, city['long_name'], province['long_name'], \
-               country['long_name'],
+        return location['lng'], location['lat'], name, postal, suburb, city, province, country,
     else:
         return
 
@@ -78,20 +79,20 @@ def verifyCoord(file):
             placeLabel = file['Suburb'][ind] + "," + file['City'][ind] + "," + file['Province'][ind] + "," + \
                          file['Country'][ind]
         print(placeLabel)
-        long, lat, name, postal, suburb, city, province, country = getLongLat(placeLabel)
-        localMun = getLocalMun(lat, long)
-        districtMun = getDistrictMun(lat, long)
-        file.at[ind, 'Verified Latitude'] = lat
-        file.at[ind, 'Verified Longitude'] = long
-        file.at[ind, 'Verified Place Name'] = name
+        vlong, vlat, vname, vpostal, vsuburb, vcity, vprovince, vcountry = getLongLat(placeLabel)
+        localMun = getLocalMun(vlat, vlong)
+        districtMun = getDistrictMun(vlat, vlong)
+        file.at[ind, 'Verified Latitude'] = vlat
+        file.at[ind, 'Verified Longitude'] = vlong
+        file.at[ind, 'Verified Place Name'] = vname
         file.at[ind, 'Verified Postal Code'] = postal
-        if suburb == '':
-            file.at[ind, 'Verified Suburb'] = city
+        if vsuburb is None:
+            file.at[ind, 'Verified Suburb'] = file.at[ind, 'Suburb']
         else:
-            file.at[ind, 'Verified Suburb'] = suburb
-        file.at[ind, 'Verified City'] = city
-        file.at[ind, 'Verified Province'] = province
-        file.at[ind, 'Verified Country'] = country
+            file.at[ind, 'Verified Suburb'] = vsuburb
+        file.at[ind, 'Verified City'] = vcity
+        file.at[ind, 'Verified Province'] = vprovince
+        file.at[ind, 'Verified Country'] = vcountry
         file.at[ind, 'District Municipality'] = districtMun
         file.at[ind, 'Local Municipality'] = localMun
 
@@ -104,14 +105,16 @@ def verifyCoord(file):
             file.at[ind, 'Verified Suburb'] = currSuburb
 
         if np.isnan(currLat):
-            file.at[ind, 'Latitude'] = lat
+            file.at[ind, 'Latitude'] = vlat
 
         if np.isnan(currLong):
-            file.at[ind, 'Longitude'] = long
+            file.at[ind, 'Longitude'] = vlong
 
         count = count + 1
         progress = (count / total) * 100
         print(progress)
+
+
 
 
 def getLocalMun(lat, long):

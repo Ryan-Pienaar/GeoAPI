@@ -26,7 +26,7 @@ def startGUI():
         ]
     ]
 
-    window = sg.Window("GeoAPI (Version 1.0)", layout)
+    window = sg.Window("GeoAPI (Version 1.1)", layout)
 
     # Run the Event Loop
     while True:
