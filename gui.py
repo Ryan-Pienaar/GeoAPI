@@ -16,6 +16,7 @@ def startGUI():
             values=[], enable_events=True, size=(40, 20), key="-FILE LIST-"
             ),
             sg.Button("Parse Locations"),
+            sg.Button("Score Data"),
         ],
     ]
 
@@ -26,7 +27,7 @@ def startGUI():
         ]
     ]
 
-    window = sg.Window("GeoAPI (Version 1.1)", layout)
+    window = sg.Window("GeoAPI (Version 1.2)", layout)
 
     # Run the Event Loop
     while True:
@@ -59,5 +60,15 @@ def startGUI():
                 sg.Popup("Done parsing locations. Select another file to be parsed", title="Finished")
             except:
                 sg.Popup("Please select a file to be parsed", title="Error")
+
+        if event == "Score Data":
+            try:
+                filename = os.path.join(
+                    values["-FOLDER-"], values["-FILE LIST-"][0]
+                )
+                score(filename)
+                sg.Popup("Done scoring data. Select another file to be scored", title="Finished")
+            except:
+                sg.Popup("Please select a file with data to be scored", title="Error")
 
     window.close()

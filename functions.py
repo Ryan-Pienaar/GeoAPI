@@ -3,6 +3,7 @@ import requests
 import numpy as np
 import json
 from shapely.geometry import shape, Point
+from math import radians, cos, sin, asin, sqrt
 
 count = 0
 total = 11481
@@ -145,3 +146,73 @@ def getDistrictMun(lat, long):
         polygon = shape(feature['geometry'])
         if polygon.contains(point):
             return feature['properties']['MAP_TITLE']
+
+def score(FILE):
+    xlsx = pd.read_excel(FILE)
+    #print(xlsx)
+    scoreEntries(xlsx)
+    file_name = 'out.xlsx'
+    xlsx.to_excel(file_name, index=False)
+
+def scoreEntries(frame):
+    for ind in frame.index:
+        total = 0.00
+        distance = calcDist(frame.at[ind, 'Longitude'], frame.at[ind, 'Latitude'], frame.at[ind, 'Verified Longitude'],
+                            frame.at[ind, 'Verified Latitude'])
+
+        #Suburb score counts 20% to total score
+        if frame.at[ind, 'Suburb'] == frame.at[ind, 'Verified Suburb']:
+            total += 20.00
+
+        #City score counts 10% to total score
+        if frame.at[ind, 'City'] == frame.at[ind, 'Verified City']:
+            total += 10.00
+
+        #Country score counts 20% to total score
+        if frame.at[ind, 'Country'] == frame.at[ind, 'Verified Country']:
+            total += 20.00
+
+        #Province score counts 10% to total score
+        if frame.at[ind, 'Province'] == frame.at[ind, 'Verified Province']:
+            total += 10.00
+
+        #Postal Code score counts 10% to total score
+        if frame.at[ind, 'PostalCode'] == frame.at[ind, 'Verified Postal Code']:
+            total += 10.00
+
+        #Distance score counts 30% to total score
+        if 3 >= distance > 2:
+            total += (30.00 * 0.50)
+        elif 2>= distance > 1:
+            total += (30.00 * 0.75)
+        elif 1>= distance:
+            total += (30.00 * 1.00)
+
+
+        print(total)
+        frame.at[ind, 'Score'] = total
+
+
+
+def calcDist(lon1, lat1, lon2, lat2):
+    # The math module contains a function named
+    # radians which converts from degrees to radians.
+    lon1 = radians(lon1)
+    lon2 = radians(lon2)
+    lat1 = radians(lat1)
+    lat2 = radians(lat2)
+
+    # Haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+
+    c = 2 * asin(sqrt(a))
+
+    # Radius of earth in kilometers. Use 3956 for miles
+    r = 6371
+
+    # calculate the result
+    return (c * r)
+
+
